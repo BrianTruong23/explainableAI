@@ -1,6 +1,46 @@
 import { useState } from 'react';
 import './App.css';
 
+// TokenAttribution component for visualizing token attributions
+const TokenAttribution = ({ tokens, attributions }) => {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      flexWrap: 'wrap', 
+      gap: '4px',
+      padding: '10px',
+      backgroundColor: '#f5f5f5',
+      borderRadius: '4px',
+      marginTop: '10px'
+    }}>
+      {tokens.map((token, index) => {
+        const attribution = attributions[index];
+        const color = attribution < 0 ? '#ff6b6b' : '#51cf66';
+        const intensity = Math.min(Math.abs(attribution) * 2, 1);
+        
+        return (
+          <span
+            key={index}
+            style={{
+              backgroundColor: `${color}${Math.round(intensity * 255).toString(16).padStart(2, '0')}`,
+              padding: '2px 6px',
+              borderRadius: '3px',
+              fontSize: '14px',
+              color: '#000',
+              display: 'inline-block',
+              margin: '2px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+            }}
+            title={`Attribution: ${attribution.toFixed(4)}`}
+          >
+            {token}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
 function App() {
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
@@ -8,6 +48,8 @@ function App() {
   const [method, setMethod] = useState('SHAP');
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [tokens, setTokens] = useState([]);
+  const [attributions, setAttributions] = useState([]);
 
   const handleSubmit = () => {
     setLoading(true);
@@ -36,6 +78,9 @@ function App() {
             `Probabilities:\n${formattedProbabilities}\n\n` +
             `Explanation: ${data.explanation}`
           );
+          // Update tokens and attributions for visualization
+          setTokens(data.tokens || []);
+          setAttributions(data.attributions || []);
           setLoading(false);
         })
         .catch((err) => {
@@ -48,7 +93,16 @@ function App() {
       setLoading(false);
     }
   };
-  
+
+  // Reset image and method when switching models
+  const handleModelChange = (e) => {
+    const newModel = e.target.value;
+    setModel(newModel);
+    if (newModel === 'bert-base-uncased') {
+      setImage(null);
+      setMethod('SHAP'); // Force SHAP for BERT
+    }
+  };
 
   return (
     <div>
@@ -60,20 +114,48 @@ function App() {
         onChange={e => setText(e.target.value)}
       />
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setImage(e.target.files[0])}
-      />
+      <div style={{ margin: '10px 0' }}>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={e => setImage(e.target.files[0])}
+          disabled={model === 'bert-base-uncased'}
+          style={{
+            opacity: model === 'bert-base-uncased' ? 0.5 : 1,
+            cursor: model === 'bert-base-uncased' ? 'not-allowed' : 'pointer'
+          }}
+        />
+        {model === 'bert-base-uncased' && (
+          <span style={{ marginLeft: '10px', color: '#666', fontSize: '0.9em' }}>
+            (Image upload disabled for BERT model)
+          </span>
+        )}
+      </div>
 
-      <select onChange={e => setModel(e.target.value)} value={model}>
+      <select onChange={handleModelChange} value={model}>
         <option value="bert-base-uncased">bert-base-uncased</option>
         <option value="vit-tiny">vit-tiny</option>
       </select>
 
-      <select onChange={e => setMethod(e.target.value)} value={method}>
+      <select 
+        onChange={e => setMethod(e.target.value)} 
+        value={method}
+        disabled={model === 'bert-base-uncased' && method === 'GradCAM'}
+        style={{
+          opacity: model === 'bert-base-uncased' && method === 'GradCAM' ? 0.5 : 1,
+          cursor: model === 'bert-base-uncased' && method === 'GradCAM' ? 'not-allowed' : 'pointer'
+        }}
+      >
         <option value="SHAP">SHAP</option>
-        <option value="GradCAM">GradCAM</option>
+        <option 
+          value="GradCAM" 
+          disabled={model === 'bert-base-uncased'}
+          style={{
+            color: model === 'bert-base-uncased' ? '#999' : 'inherit'
+          }}
+        >
+          GradCAM
+        </option>
       </select>
 
       <button onClick={handleSubmit}>Run Explainability</button>
@@ -93,6 +175,14 @@ function App() {
             >
               {prediction}
           </pre>
+          
+          {/* Token Attribution Visualization */}
+          {tokens.length > 0 && attributions.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <h3>Token Attributions:</h3>
+              <TokenAttribution tokens={tokens} attributions={attributions} />
+            </div>
+          )}
         </div>
       )}
     </div>
