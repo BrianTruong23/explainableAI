@@ -3,6 +3,30 @@ import './App.css';
 
 // TokenAttribution component for visualizing token attributions
 const TokenAttribution = ({ tokens, attributions }) => {
+  const maxAttribution = Math.max(...attributions.map(val => Math.abs(val)), 1e-6);
+
+  const getTokenStyle = (attribution) => {
+    const norm = Math.abs(attribution) / maxAttribution;
+
+    console.log(norm);
+
+    // Determine color
+    const backgroundColor = attribution < 0
+      ? `rgba(255, 0, 0, ${norm})`  // red for negative
+      : `rgba(0, 0, 255, ${norm})`; // blue for positive
+
+    return {
+      backgroundColor,
+      color: '#000',
+      padding: '2px 6px',
+      borderRadius: '3px',
+      fontSize: '14px',
+      display: 'inline-block',
+      margin: '2px',
+      boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+    };
+  };
+
   return (
     <div style={{ 
       display: 'flex', 
@@ -13,33 +37,19 @@ const TokenAttribution = ({ tokens, attributions }) => {
       borderRadius: '4px',
       marginTop: '10px'
     }}>
-      {tokens.map((token, index) => {
-        const attribution = attributions[index];
-        const color = attribution < 0 ? '#ff6b6b' : '#51cf66';
-        const intensity = Math.min(Math.abs(attribution) * 2, 1);
-        
-        return (
-          <span
-            key={index}
-            style={{
-              backgroundColor: `${color}${Math.round(intensity * 255).toString(16).padStart(2, '0')}`,
-              padding: '2px 6px',
-              borderRadius: '3px',
-              fontSize: '14px',
-              color: '#000',
-              display: 'inline-block',
-              margin: '2px',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-            }}
-            title={`Attribution: ${attribution.toFixed(4)}`}
-          >
-            {token}
-          </span>
-        );
-      })}
+      {tokens.map((token, index) => (
+        <span
+          key={index}
+          style={getTokenStyle(attributions[index])}
+          title={`Attribution: ${attributions[index].toFixed(4)}`}
+        >
+          {token}
+        </span>
+      ))}
     </div>
   );
 };
+
 
 function App() {
   const [text, setText] = useState('');
@@ -160,7 +170,10 @@ function App() {
 
       <button onClick={handleSubmit}>Run Explainability</button>
 
-      {loading && <p>Loading...</p>}
+      <div className={`loader-container ${!loading ? 'hidden' : ''}`}>
+        <div className="loader"></div>
+      </div>
+
 
       {prediction && (
         <div style={{ background: '#e2e2e2', padding: '1rem', marginTop: '1rem' }}>
