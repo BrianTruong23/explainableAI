@@ -5,7 +5,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 class ModelLoader:
-    def __init__(self):
+    def __init__(self, default_text_model: str = "bert-base-uncased"):
         self.models: Dict[str, Any] = {}
         self.tokenizers: Dict[str, Any] = {}
         self.transform = transforms.Compose([
@@ -13,6 +13,28 @@ class ModelLoader:
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Preload default text model
+        self.model, self.tokenizer = self.load_text_model(default_text_model)
+        self.model.eval()
+        self.model.to(self.device)
+
+
+    def predict_text(self, text: str, model_name: str = "bert-base-uncased"):
+        model, tokenizer = self.load_text_model(model_name)
+        model.to(self.device)
+        model.eval()
+
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(self.device)
+        with torch.no_grad():
+            outputs = model(**inputs)
+            logits = outputs.logits
+            prediction = torch.argmax(logits, dim=1).item()
+            probabilities = torch.nn.functional.softmax(logits, dim=1).squeeze().tolist()
+        
+        return prediction, probabilities
+
 
     def load_text_model(self, model_name: str = "bert-base-uncased"):
         """Load a text classification model"""
@@ -39,3 +61,4 @@ class ModelLoader:
     def preprocess_image(self, image: Image.Image):
         """Preprocess image input"""
         return self.transform(image).unsqueeze(0) 
+    

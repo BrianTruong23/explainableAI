@@ -1,17 +1,38 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import FastAPI
 from pydantic import BaseModel
+from model_loader import ModelLoader
+from fastapi.middleware.cors import CORSMiddleware
 
-router = APIRouter()
+app = FastAPI()
+model_loader = ModelLoader()
 
-class TextInput(BaseModel):
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class TextRequest(BaseModel):
     text: str
 
-@router.post("/predict-text")
-def predict_text(data: TextInput):
-    # Simulate model prediction
-    return {"prediction": "Positive", "explanation": [0.1, 0.9, 0.2, 0.8]}
+@app.post("/predict-text")
+def predict_text(request: TextRequest):
 
-@router.post("/predict-image")
+    text = request.text
+    prediction, probabilities = model_loader.predict_text(text)
+    print(f"Input: {text}")
+    print(f"Prediction: {prediction}, Probabilities: {probabilities}")
+
+    return {
+        "prediction": str(prediction),
+        "probabilities": probabilities,
+        "explanation": "Token attribution coming soon"
+    }
+
+
+@app.post("/predict-image")
 def predict_image(file: UploadFile = File(...)):
     # Simulate image prediction
     return {"prediction": "Cat", "heatmap_url": "https://example.com/heatmap.jpg"}

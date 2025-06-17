@@ -14,7 +14,9 @@ function App() {
   
     if (text.trim()) {
       // Submit text to /predict-text
-      fetch('http://127.0.0.1:8000/predict-text', {
+      const localTest = "http://127.0.0.1:8000/predict-text"
+      const remoteTest = "https://thang22-xai-model-api.hf.space/predict-text"
+      fetch(remoteTest, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +26,16 @@ function App() {
         .then((res) => res.json())
         .then((data) => {
           console.log("Full response from backend:", data);  
-          setPrediction(`Model: ${model}, Explanation Method: ${method}\nPrediction: ${data.prediction} \nExplanation: ${data.explanation}`);
+          const formattedProbabilities = data.probabilities
+            .map((prob, idx) => `Class ${idx}: ${(prob * 100).toFixed(2)}%`)
+            .join('\n');
+          setPrediction(
+            `Model: ${model}\n` +
+            `Explanation Method: ${method}\n` +
+            `Prediction: ${data.prediction}\n\n` +
+            `Probabilities:\n${formattedProbabilities}\n\n` +
+            `Explanation: ${data.explanation}`
+          );
           setLoading(false);
         })
         .catch((err) => {
