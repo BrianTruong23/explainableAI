@@ -190,12 +190,27 @@ function App() {
           </pre>
           
           {/* Token Attribution Visualization */}
-          {tokens.length > 0 && attributions.length > 0 && (
+          {result[0].tokens.length > 0 && result[0].attributions.length > 0 && (
             <div style={{ marginTop: '20px' }}>
-              <h3>Token Attributions:</h3>
-              <TokenAttribution tokens={tokens} attributions={attributions} />
+              <h3>Token Attributions (Class 0):</h3>
+              <TokenAttribution 
+                tokens={result[0].tokens} 
+                attributions={result[0].attributions} 
+              />
             </div>
           )}
+        
+          {result[1].tokens.length > 0 && result[1].attributions.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <h3>Token Attributions (Class 1):</h3>
+              <TokenAttribution 
+                tokens={result[1].tokens} 
+                attributions={result[1].attributions} 
+              />
+            </div>
+          )}
+
+
         </div>
       )}
     </div>
