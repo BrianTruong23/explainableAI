@@ -1,116 +1,45 @@
 import { useState } from 'react';
 import './App.css';
-
-// TokenAttribution component for visualizing token attributions
-const TokenAttribution = ({ tokens, attributions }) => {
-  const maxAttribution = Math.max(...attributions.map(val => Math.abs(val)), 1e-6);
-
-  const getTokenStyle = (attribution) => {
-    const norm = Math.abs(attribution) / maxAttribution;
-
-    console.log(norm);
-
-    // Determine color
-    const backgroundColor = attribution < 0
-      ? `rgba(255, 0, 0, ${norm})`  // red for negative
-      : `rgba(0, 0, 255, ${norm})`; // blue for positive
-
-    return {
-      backgroundColor,
-      color: '#000',
-      padding: '2px 6px',
-      borderRadius: '3px',
-      fontSize: '14px',
-      display: 'inline-block',
-      margin: '2px',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-    };
-  };
-
-  return (
-    <div style={{ 
-      display: 'flex', 
-      flexWrap: 'wrap', 
-      gap: '4px',
-      padding: '10px',
-      backgroundColor: '#f5f5f5',
-      borderRadius: '4px',
-      marginTop: '10px'
-    }}>
-      {tokens.map((token, index) => (
-        <span
-          key={index}
-          style={getTokenStyle(attributions[index])}
-          title={`Attribution: ${attributions[index].toFixed(4)}`}
-        >
-          {token}
-        </span>
-      ))}
-    </div>
-  );
-};
-
+import TokenAttribution from './components/TokenAttribution';
+import { fetchTextExplanation } from './api/explainApi';
 
 function App() {
   const [text, setText] = useState('');
-  const [image, setImage] = useState(null);
   const [model, setModel] = useState('bert-base-uncased');
   const [method, setMethod] = useState('SHAP');
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [tokens, setTokens] = useState([]);
-  const [attributions, setAttributions] = useState([]);
+  const [result, setResult] = useState({ 0: { tokens: [], attributions: [] }, 1: { tokens: [], attributions: [] } });
+  const [activeClass, setActiveClass] = useState(null);
 
-  const handleSubmit = () => {
-    setLoading(true);
-  
-    if (text.trim()) {
-      // Submit text to /predict-text
-      const localTest = "http://127.0.0.1:8000/predict-text"
-      const remoteTest = "https://thang22-xai-model-api.hf.space/predict-text"
-      fetch(remoteTest, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Full response from backend:", data);  
-          const formattedProbabilities = data.probabilities
-            .map((prob, idx) => `Class ${idx}: ${(prob * 100).toFixed(2)}%`)
-            .join('\n');
-          setPrediction(
-            `Model: ${model}\n` +
-            `Explanation Method: ${method}\n` +
-            `Prediction: ${data.prediction}\n\n` +
-            `Probabilities:\n${formattedProbabilities}\n\n` +
-            `Explanation: ${data.explanation}`
-          );
-          // Update tokens and attributions for visualization
-          setTokens(data.tokens || []);
-          setAttributions(data.attributions || []);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error('Error during fetch:', err);
-          setPrediction('Failed to get prediction.');
-          setLoading(false);
-        });
-    } else {
+  const handleSubmit = async () => {
+    if (!text.trim()) {
       setPrediction('Please enter text to get prediction.');
-      setLoading(false);
+      return;
     }
-  };
 
-  // Reset image and method when switching models
-  const handleModelChange = (e) => {
-    const newModel = e.target.value;
-    setModel(newModel);
-    if (newModel === 'bert-base-uncased') {
-      setImage(null);
-      setMethod('SHAP'); // Force SHAP for BERT
+    setLoading(true);
+    
+    try {
+      const data = await fetchTextExplanation(text, model, method);
+      console.log("Response from backend:", data);
+      const formatted = data.probabilities
+        .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
+        .join('\n');
+
+      setPrediction(
+        `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction}\n\nProbabilities:\n${formatted}`
+      );
+      setResult(data.class_attributions || {});
+      setActiveClass(Number(data.prediction));
+      console.log("Predicted and active class:", data.prediction, activeClass);
+
+
+    } catch (err) {
+      console.error(err);
+      setPrediction('Failed to get prediction.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,31 +53,14 @@ function App() {
         onChange={e => setText(e.target.value)}
       />
 
-      <div style={{ margin: '10px 0' }}>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={e => setImage(e.target.files[0])}
-          disabled={model === 'bert-base-uncased'}
-          style={{
-            opacity: model === 'bert-base-uncased' ? 0.5 : 1,
-            cursor: model === 'bert-base-uncased' ? 'not-allowed' : 'pointer'
-          }}
-        />
-        {model === 'bert-base-uncased' && (
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '0.9em' }}>
-            (Image upload disabled for BERT model)
-          </span>
-        )}
-      </div>
-
-      <select onChange={handleModelChange} value={model}>
+      {/* Model and method dropdowns */}
+      <select onChange={(e) => setModel(e.target.value)} value={model}>
         <option value="bert-base-uncased">bert-base-uncased</option>
         <option value="vit-tiny">vit-tiny</option>
       </select>
 
       <select 
-        onChange={e => setMethod(e.target.value)} 
+        onChange={(e) => setMethod(e.target.value)} 
         value={method}
         disabled={model === 'bert-base-uncased' && method === 'GradCAM'}
         style={{
@@ -170,47 +82,117 @@ function App() {
 
       <button onClick={handleSubmit}>Run Explainability</button>
 
-      <div className={`loader-container ${!loading ? 'hidden' : ''}`}>
-        <div className="loader"></div>
-      </div>
-
+      {loading && <div className="loader"></div>}
 
       {prediction && (
-        <div style={{ background: '#e2e2e2', padding: '1rem', marginTop: '1rem' }}>
-          <h3>Prediction:</h3>
-          <pre
+            <div style={{ background: '#e2e2e2', padding: '1rem', marginTop: '1rem' }}>
+              <h3>Prediction:</h3>
+              <pre>{prediction}</pre>
+
+              {prediction && (
+            <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginTop: "16px",
+            }}
+          >
+            <span>View Attribution for Class:</span>
+          
+            <div
               style={{
-                background: '#e2e2e2',
-                padding: '1rem',
-                marginTop: '1rem',
-                whiteSpace: 'pre-wrap', // wraps long lines
+                position: "relative",
+                display: "flex",
+                borderRadius: "100px",
+                backgroundColor: "#0036FF80",
+                width: "140px",
+                height: "32px",
+                cursor: "pointer",
               }}
             >
-              {prediction}
-          </pre>
+              {/* Sliding background */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "50%",
+                  height: "100%",
+                  backgroundColor: "#0036FF",
+                  borderRadius: "100px",
+                  transition: "transform 0.3s ease",
+                  transform: activeClass === 0 ? "translateX(0)" : "translateX(100%)",
+                }}
+              />
           
-          {/* Token Attribution Visualization */}
-          {result[0].tokens.length > 0 && result[0].attributions.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <h3>Token Attributions (Class 0):</h3>
-              <TokenAttribution 
-                tokens={result[0].tokens} 
-                attributions={result[0].attributions} 
-              />
+              {/* Class 0 */}
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 1,
+                  color: activeClass === 0 ? "#fff" : "#ffffffb3",
+                  fontWeight: 500,
+                  transition: "color 0.3s ease",
+                }}
+                onClick={() => setActiveClass(0)}
+              >
+                Class 0
+              </div>
+          
+              {/* Class 1 */}
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 1,
+                  color: activeClass === 1 ? "#fff" : "#ffffffb3",
+                  fontWeight: 500,
+                  transition: "color 0.3s ease",
+                }}
+                onClick={() => setActiveClass(1)}
+              >
+                Class 1
+              </div>
             </div>
-          )}
-        
-          {result[1].tokens.length > 0 && result[1].attributions.length > 0 && (
+          </div>
+       
+        )}
+
+
+          {result[activeClass]?.tokens?.length > 0 && (
             <div style={{ marginTop: '20px' }}>
-              <h3>Token Attributions (Class 1):</h3>
-              <TokenAttribution 
-                tokens={result[1].tokens} 
-                attributions={result[1].attributions} 
+              <div>
+                <h3>Token Attributions (Class {activeClass}):</h3>
+                <p style={{ marginTop: '4px', marginBottom: '20px', fontSize: '14px', color: '#333' }}>
+                  Hover over the tokens to get the attribution.
+                </p>
+
+              </div>
+              <TokenAttribution
+                tokens={result[activeClass].tokens}
+                attributions={result[activeClass].attributions}
+                classIndex={activeClass}
               />
             </div>
           )}
 
-
+          {/* {[0, 1].map((cls) =>
+            result[cls]?.tokens?.length > 0 ? (
+              <div key={cls}>
+                <h3>Token Attributions (Class {cls}):</h3>
+                <TokenAttribution
+                  tokens={result[cls].tokens}
+                  attributions={result[cls].attributions}
+                />
+              </div>
+            ) : null
+          )} */}
         </div>
       )}
     </div>
