@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState({ 0: { tokens: [], attributions: [] }, 1: { tokens: [], attributions: [] } });
   const [activeClass, setActiveClass] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
 
   const handleSubmit = async () => {
     if (!text.trim()) {
@@ -43,6 +44,15 @@ function App() {
     }
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+    } else {
+      alert("Please upload a valid image file.");
+    }
+  };
+
   return (
     <div>
       <h1>Explainability App (xAI)</h1>
@@ -51,13 +61,42 @@ function App() {
         placeholder="Enter text..."
         value={text}
         onChange={e => setText(e.target.value)}
+        disabled = {model == "vit-tiny"}
+        style={{
+          opacity: model === "vit-tiny" ? 0.5 : 1,
+          cursor: model === "vit-tiny" ? "not-allowed" : "pointer"
+        }}
       />
 
+
+      <label htmlFor="
+      ">
+          Upload Image:
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            disabled={model === "bert-base-uncased"}
+            style={{
+              opacity: model === "bert-base-uncased" ? 0.5 : 1,
+              cursor: model === "bert-base-uncased" ? "not-allowed" : "pointer"
+            }}
+          />
+
+      </label>
+    
       {/* Model and method dropdowns */}
-      <select onChange={(e) => setModel(e.target.value)} value={model}>
-        <option value="bert-base-uncased">bert-base-uncased</option>
-        <option value="vit-tiny">vit-tiny</option>
-      </select>
+      <label>
+        Model:
+        <select onChange={(e) => setModel(e.target.value)} value={model}>
+          <option value="bert-base-uncased">bert-base-uncased</option>
+          <option value="vit-tiny">vit-tiny</option>
+        </select>
+      </label>
+
+      <label>
+
+      Explainable Method:
 
       <select 
         onChange={(e) => setMethod(e.target.value)} 
@@ -79,6 +118,9 @@ function App() {
           GradCAM
         </option>
       </select>
+
+      </label>
+     
 
       <button onClick={handleSubmit}>Run Explainability</button>
 
