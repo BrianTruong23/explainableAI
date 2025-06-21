@@ -12,6 +12,8 @@ function App() {
   const [result, setResult] = useState({ 0: { tokens: [], attributions: [] }, 1: { tokens: [], attributions: [] } });
   const [activeClass, setActiveClass] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [predictionType, setPredictionType] = useState("text"); // or "image"
+
 
   const handleSubmit = async () => {
     if (!text.trim()) {
@@ -35,6 +37,13 @@ function App() {
       setActiveClass(Number(data.prediction));
       console.log("Predicted and active class:", data.prediction, activeClass);
 
+      // If image is uploaded and model is vit-tiny, then it's image prediction
+      if (model === "vit-tiny") {
+        setPredictionType("image");
+      } else {
+        setPredictionType("text");
+      }
+
 
     } catch (err) {
       console.error(err);
@@ -54,7 +63,15 @@ function App() {
   };
 
   return (
-    <div>
+    <div 
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      maxWidth: '600px',
+      margin: '0 auto'
+    }}
+    >
       <h1>Explainability App (xAI)</h1>
 
       <textarea
@@ -69,8 +86,7 @@ function App() {
       />
 
 
-      <label htmlFor="
-      ">
+      <label>
           Upload Image:
           <input
             type="file"
@@ -127,116 +143,108 @@ function App() {
       {loading && <div className="loader"></div>}
 
       {prediction && (
-            <div style={{ background: '#e2e2e2', padding: '1rem', marginTop: '1rem' }}>
-              <h3>Prediction:</h3>
-              <pre>{prediction}</pre>
+  <div style={{ background: '#e2e2e2', padding: '1rem', marginTop: '1rem' }}>
+    <h3>Prediction:</h3>
+    
+    {/* Text prediction */}
+    {predictionType === "text" && <pre>{prediction}</pre>}
 
-              {prediction && (
-            <div
+    {/* Image prediction */}
+    {predictionType === "image" && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <strong>Label:</strong> {prediction.label} <br />
+        <strong>Confidence:</strong> {(prediction.confidence * 100).toFixed(2)}%
+      </div>
+    )}
+
+    {/* Only show this if predictionType === "text" */}
+    {predictionType === "text" && (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          marginTop: "16px",
+        }}
+      >
+        <span>View Attribution for Class:</span>
+
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            borderRadius: "100px",
+            backgroundColor: "#0036FF80",
+            width: "140px",
+            height: "32px",
+            cursor: "pointer",
+          }}
+        >
+          <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginTop: "16px",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "50%",
+              height: "100%",
+              backgroundColor: "#0036FF",
+              borderRadius: "100px",
+              transition: "transform 0.3s ease",
+              transform: activeClass === 0 ? "translateX(0)" : "translateX(100%)",
             }}
+          />
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1,
+              color: activeClass === 0 ? "#fff" : "#ffffffb3",
+              fontWeight: 500,
+              transition: "color 0.3s ease",
+            }}
+            onClick={() => setActiveClass(0)}
           >
-            <span>View Attribution for Class:</span>
-          
-            <div
-              style={{
-                position: "relative",
-                display: "flex",
-                borderRadius: "100px",
-                backgroundColor: "#0036FF80",
-                width: "140px",
-                height: "32px",
-                cursor: "pointer",
-              }}
-            >
-              {/* Sliding background */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "50%",
-                  height: "100%",
-                  backgroundColor: "#0036FF",
-                  borderRadius: "100px",
-                  transition: "transform 0.3s ease",
-                  transform: activeClass === 0 ? "translateX(0)" : "translateX(100%)",
-                }}
-              />
-          
-              {/* Class 0 */}
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 1,
-                  color: activeClass === 0 ? "#fff" : "#ffffffb3",
-                  fontWeight: 500,
-                  transition: "color 0.3s ease",
-                }}
-                onClick={() => setActiveClass(0)}
-              >
-                Class 0
-              </div>
-          
-              {/* Class 1 */}
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 1,
-                  color: activeClass === 1 ? "#fff" : "#ffffffb3",
-                  fontWeight: 500,
-                  transition: "color 0.3s ease",
-                }}
-                onClick={() => setActiveClass(1)}
-              >
-                Class 1
-              </div>
-            </div>
+            Class 0
           </div>
-       
-        )}
-
-
-          {result[activeClass]?.tokens?.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <div>
-                <h3>Token Attributions (Class {activeClass}):</h3>
-                <p style={{ marginTop: '4px', marginBottom: '20px', fontSize: '14px', color: '#333' }}>
-                  Hover over the tokens to get the attribution.
-                </p>
-
-              </div>
-              <TokenAttribution
-                tokens={result[activeClass].tokens}
-                attributions={result[activeClass].attributions}
-                classIndex={activeClass}
-              />
-            </div>
-          )}
-
-          {/* {[0, 1].map((cls) =>
-            result[cls]?.tokens?.length > 0 ? (
-              <div key={cls}>
-                <h3>Token Attributions (Class {cls}):</h3>
-                <TokenAttribution
-                  tokens={result[cls].tokens}
-                  attributions={result[cls].attributions}
-                />
-              </div>
-            ) : null
-          )} */}
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1,
+              color: activeClass === 1 ? "#fff" : "#ffffffb3",
+              fontWeight: 500,
+              transition: "color 0.3s ease",
+            }}
+            onClick={() => setActiveClass(1)}
+          >
+            Class 1
+          </div>
         </div>
-      )}
+      </div>
+    )}
+
+    {/* Only show token attribution for text prediction */}
+    {predictionType === "text" && result[activeClass]?.tokens?.length > 0 && (
+      <div style={{ marginTop: '20px' }}>
+        <h3>Token Attributions (Class {activeClass}):</h3>
+        <p style={{ marginTop: '4px', marginBottom: '20px', fontSize: '14px', color: '#333' }}>
+          Hover over the tokens to get the attribution.
+        </p>
+
+        <TokenAttribution
+          tokens={result[activeClass].tokens}
+          attributions={result[activeClass].attributions}
+          classIndex={activeClass}
+        />
+      </div>
+    )}
+  </div>
+)}
+
     </div>
   );
 }
