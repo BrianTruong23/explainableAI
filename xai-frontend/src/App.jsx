@@ -13,6 +13,7 @@ function App() {
   const [activeClass, setActiveClass] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [predictionType, setPredictionType] = useState("text"); // or "image"
+  const [predictionTextDisplay, setPredictionTextDisplay] = useState('Positive')
 
 
   const handleSubmit = async () => {
@@ -25,13 +26,18 @@ function App() {
     
     try {
       const data = await fetchTextExplanation(text, model, method);
+      
       console.log("Response from backend:", data);
       const formatted = data.probabilities
         .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
         .join('\n');
 
+      if (model == "bert-base-uncased"){
+          setPredictionTextDisplay(data.class_attributions[Number(data.prediction)]["class_label"])
+      }
+
       setPrediction(
-        `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction}\n\nProbabilities:\n${formatted}`
+        `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction} (${predictionTextDisplay})\n\nProbabilities:\n${formatted}`
       );
       setResult(data.class_attributions || {});
       setActiveClass(Number(data.prediction));
@@ -43,6 +49,7 @@ function App() {
       } else {
         setPredictionType("text");
       }
+
 
 
     } catch (err) {
