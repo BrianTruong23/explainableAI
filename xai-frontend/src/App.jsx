@@ -135,17 +135,23 @@ function App() {
 
     
       {showInfo && (
-           <p style={{ marginTop: "2px" }}>
-           This project aims to demystify the decisions made by AI models.
-           Currently, it serves two models.
-           <br />
-           <br />
-           One is a text model <strong>bert/bert-uncased</strong> which, given a text, predicts sentiment analysis. Then, an explainable method (SHAP) is applied to bring more insight into the predictions. For more information, refer to the SHAP repository.
-           <br />
-           <br />
-           The second model is <strong>google/vit-base-patch16-224</strong> which, given an image, predicts the class label. An explainable method like Grad-CAM is then used to visualize which parts of the image influenced the prediction.
-         </p>
+        <div className="info-box">
+          <h3>📘 About This Project</h3>
+          <p>
+            This project aims to demystify the decisions made by AI models. Currently, it serves two models.
+          </p>
+          <p>
+            One is a text model <strong>bert/bert-uncased</strong>, which predicts sentiment analysis.
+            An explainable method (<strong>SHAP</strong>) provides more insight into predictions.
+          </p>
+          <p>
+            The second model is <strong>google/vit-base-patch16-224</strong>, which predicts the class label of an image.
+            <strong>Grad-CAM</strong> is used to visualize which parts of the image influenced the prediction.
+          </p>
+        </div>
       )}
+
+
 
       <textarea
         placeholder="Enter text..."
