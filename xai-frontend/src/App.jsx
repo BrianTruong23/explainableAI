@@ -2,6 +2,10 @@ import { useState } from 'react';
 import './App.css';
 import TokenAttribution from './components/TokenAttribution';
 import { fetchTextExplanation } from './api/explainApi';
+import { FaInfoCircle } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function App() {
   const [text, setText] = useState('');
@@ -14,9 +18,50 @@ function App() {
   const [imageFile, setImageFile] = useState(null);
   const [predictionType, setPredictionType] = useState("text"); // or "image"
   const [predictionTextDisplay, setPredictionTextDisplay] = useState('Positive')
+  const [showInfo, setShowInfo] = useState(false);
+  const SHAP = "SHAP";
+  const VIT_TINY = "vit-tiny";
+  const BERT = "bert-base-uncased";
+  const GRAD_CAM = "GradCAM";
+  const VALID_COMBINATIONS = new Set([
+    `${BERT}|${SHAP}`,
+    `${VIT_TINY}|${GRAD_CAM}`
+  ]);
 
+
+  const toggleInfo = () => {
+    setShowInfo((prev) => !prev);
+
+  };
+
+  const handleChange = (e) => {
+    const selectedValue = e.target.value;
+  
+    if (
+      (model === BERT && selectedValue === GRAD_CAM) ||
+      (model === VIT_TINY && selectedValue === SHAP)
+    ) {
+      toast.error(`${selectedValue} is not available for this model:${model}.`);
+      return;
+    }
+  
+    setMethod(selectedValue);
+  };
+
+  const sanityCheckForModelAndMethod = (model, method) => {
+    return VALID_COMBINATIONS.has(`${model}|${method}`);
+  };
+  
+  
 
   const handleSubmit = async () => {
+
+    if (!sanityCheckForModelAndMethod(model, method)){
+      toast.error(`${method} is not available for this model: ${model}.`);
+      return;
+    }
+
+
     if (!text.trim()) {
       setPrediction('Please enter text to get prediction.');
       return;
@@ -26,7 +71,7 @@ function App() {
     
     try {
       const data = await fetchTextExplanation(text, model, method);
-      
+
       console.log("Response from backend:", data);
       const formatted = data.probabilities
         .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
@@ -75,11 +120,32 @@ function App() {
       display: 'flex',
       flexDirection: 'column',
       gap: '16px',
-      maxWidth: '600px',
+      maxWidth: '700px',
       margin: '0 auto'
     }}
     >
-      <h1>Explainability App (xAI)</h1>
+
+      <div class = "explanation-class">
+        <h1>Explainability App (xAI) </h1>
+      <FaInfoCircle
+          style={{ cursor: "pointer", fontSize: "24px", color: "#007bff"}}
+          onClick={toggleInfo}
+        />
+      </div>
+
+    
+      {showInfo && (
+           <p style={{ marginTop: "2px" }}>
+           This project aims to demystify the decisions made by AI models.
+           Currently, it serves two models.
+           <br />
+           <br />
+           One is a text model <strong>bert/bert-uncased</strong> which, given a text, predicts sentiment analysis. Then, an explainable method (SHAP) is applied to bring more insight into the predictions. For more information, refer to the SHAP repository.
+           <br />
+           <br />
+           The second model is <strong>google/vit-base-patch16-224</strong> which, given an image, predicts the class label. An explainable method like Grad-CAM is then used to visualize which parts of the image influenced the prediction.
+         </p>
+      )}
 
       <textarea
         placeholder="Enter text..."
@@ -120,27 +186,33 @@ function App() {
       <label>
 
       Explainable Method:
-
-      <select 
-        onChange={(e) => setMethod(e.target.value)} 
+      
+      <select
+        onChange={handleChange}
         value={method}
-        disabled={model === 'bert-base-uncased' && method === 'GradCAM'}
         style={{
-          opacity: model === 'bert-base-uncased' && method === 'GradCAM' ? 0.5 : 1,
-          cursor: model === 'bert-base-uncased' && method === 'GradCAM' ? 'not-allowed' : 'pointer'
+          opacity: model === "bert-base-uncased" && method === "GradCAM" ? 0.5 : 1,
+          cursor: model === "bert-base-uncased" && method === "GradCAM" ? "not-allowed" : "pointer",
         }}
       >
-        <option value="SHAP">SHAP</option>
-        <option 
-          value="GradCAM" 
-          disabled={model === 'bert-base-uncased'}
+        <option
+          value="SHAP"
           style={{
-            color: model === 'bert-base-uncased' ? '#999' : 'inherit'
+            color: model === "vit-tiny" ? "#999" : "inherit",
+          }}
+        >
+          SHAP
+        </option>
+        <option
+          value="GradCAM"
+          style={{
+            color: model === "bert-base-uncased" ? "#999" : "inherit",
           }}
         >
           GradCAM
         </option>
       </select>
+
 
       </label>
      
@@ -148,6 +220,8 @@ function App() {
       <button onClick={handleSubmit}>Run Explainability</button>
 
       {loading && <div className="loader"></div>}
+
+      <ToastContainer />
 
       {prediction && (
   <div style={{ background: '#e2e2e2', padding: '1rem', marginTop: '1rem' }}>
