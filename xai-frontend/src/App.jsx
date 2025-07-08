@@ -144,12 +144,7 @@ function App() {
   <div className="explanation-header">
   <h1 className="neon-title">Neon AI</h1>
   <FaInfoCircle
-    style={{
-      cursor: "pointer",
-      fontSize: "24px",
-      color: "#00f6ff", // cleaner cyan glow
-      marginLeft: "12px",
-    }}
+    class="info-icon"
     onClick={toggleInfo}
   />
 

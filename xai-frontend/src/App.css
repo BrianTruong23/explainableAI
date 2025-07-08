@@ -58,16 +58,19 @@ button:hover {
 
 .neon-title {
   font-size: 3.5rem;
-  color: #ffffff;
+  color: #E0FFFF; /* Very light cyan for the 'tube' itself */
   font-weight: 700;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* Initial text-shadow, blending the blues */
   text-shadow:
-    0 0 5px #00f6ff,
-    0 0 10px #00f6ff,
-    0 0 20px #00e5ff,
-    0 0 40px #00cfff;
+    0 0 5px #87CEEB,   /* Lighter, immediate glow */
+    0 0 10px #007FFF,  /* Medium vibrant blue */
+    0 0 20px #0000CD,  /* Deeper blue */
+    0 0 40px #4169E1;  /* Outermost, slightly purpleish deep blue */
+  animation: flicker 3s infinite alternate ease-in-out;
 }
 
+/* Your existing subtext styles */
 .explanation-subtext {
   margin-top: 2px;
   font-size: 1.2rem;
@@ -79,18 +82,53 @@ button:hover {
 
 
 @keyframes flicker {
-  0% {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
     opacity: 1;
+    text-shadow:
+      0 0 5px #87CEEB,   /* Lighter, immediate glow */
+      0 0 10px #007FFF,  /* Medium vibrant blue */
+      0 0 20px #0000CD,  /* Deeper blue */
+      0 0 40px #4169E1;  /* Outermost, slightly purpleish deep blue */
   }
-  45% {
-    opacity: 0.8;
+  20%, 24%, 55% {
+    opacity: 0.7; /* Slightly dimmer */
+    text-shadow:
+      0 0 3px #87CEEB,
+      0 0 8px #007FFF,
+      0 0 15px #0000CD,
+      0 0 30px #4169E1; /* Slightly less intense shadow */
   }
-  70% {
-    opacity: 0.6;
+  22% {
+    opacity: 0.9; /* Quick, slight dim */
+    text-shadow:
+      0 0 4px #87CEEB,
+      0 0 9px #007FFF,
+      0 0 18px #0000CD,
+      0 0 35px #4169E1;
   }
-  100% {
-    opacity: 1;
+  30%, 35%, 60% {
+    opacity: 0.5; /* More significant dimming */
+    text-shadow:
+      0 0 2px #87CEEB,
+      0 0 5px #007FFF,
+      0 0 10px #0000CD,
+      0 0 20px #4169E1;
   }
+  40%, 65% {
+    opacity: 0.8; /* Brief, moderate dimming */
+    text-shadow:
+      0 0 4px #87CEEB,
+      0 0 9px #007FFF,
+      0 0 18px #0000CD,
+      0 0 35px #4169E1;
+  }
+}
+
+.info-icon {
+  cursor: pointer;
+  font-size: 24px;
+  color: #007FFF; /* Use 'color' for font color in CSS */
+  margin-left: 12px; /* Use 'margin-left' for marginLeft in CSS */
 }
 
 .modal-overlay {
