@@ -125,31 +125,47 @@ function App() {
     }}
     >
 
-      <div class = "explanation-class">
-        <h1>Explainability App (xAI) </h1>
-      <FaInfoCircle
-          style={{ cursor: "pointer", fontSize: "24px", color: "#007bff"}}
-          onClick={toggleInfo}
-        />
-      </div>
+  <div className="explanation-header">
+  <h1 className="neon-title">Neon AI</h1>
+  <FaInfoCircle
+    style={{
+      cursor: "pointer",
+      fontSize: "24px",
+      color: "#00f6ff", // cleaner cyan glow
+      marginLeft: "12px",
+    }}
+    onClick={toggleInfo}
+  />
+
+</div>
+  <p className="explanation-subtext">
+    Shine a light into AI’s black box. Neon AI helps you understand how models make decisions through clear, interactive, and human-friendly explanations.
+  </p>
+
+
+    
 
     
       {showInfo && (
-        <div className="info-box">
-          <h3>📘 About This Project</h3>
-          <p>
-            This project aims to demystify the decisions made by AI models. Currently, it serves two models.
-          </p>
-          <p>
-            One is a text model <strong>bert/bert-uncased</strong>, which predicts sentiment analysis.
-            An explainable method (<strong>SHAP</strong>) provides more insight into predictions.
-          </p>
-          <p>
-            The second model is <strong>google/vit-base-patch16-224</strong>, which predicts the class label of an image.
-            <strong>Grad-CAM</strong> is used to visualize which parts of the image influenced the prediction.
-          </p>
+        <div className="modal-overlay" onClick={toggleInfo}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={toggleInfo}>×</button>
+            <h3>📘 About This Project</h3>
+            <p>
+              This project aims to demystify the decisions made by AI models. Currently, it serves two models.
+            </p>
+            <p>
+              One is a text model <strong>bert/bert-uncased</strong>, which predicts sentiment analysis.
+              An explainable method (<strong>SHAP</strong>) provides more insight into predictions.
+            </p>
+            <p>
+              The second model is <strong>google/vit-base-patch16-224</strong>, which predicts the class label of an image.
+              <strong>Grad-CAM</strong> is used to visualize which parts of the image influenced the prediction.
+            </p>
+          </div>
         </div>
       )}
+
 
 
 
