@@ -12,6 +12,7 @@ function App() {
   const [model, setModel] = useState('bert-base-uncased');
   const [method, setMethod] = useState('SHAP');
   const [prediction, setPrediction] = useState(null);
+  const [imageGradCam, setImageGradCam] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState({ 0: { tokens: [], attributions: [] }, 1: { tokens: [], attributions: [] } });
   const [activeClass, setActiveClass] = useState(null);
@@ -62,10 +63,12 @@ function App() {
     }
 
 
-    if (!text.trim()) {
+    if (model == BERT && !text.trim()) {
       setPrediction('Please enter text to get prediction.');
       return;
     }
+
+    console.log("running outside 1");
 
     setLoading(true);
 
@@ -90,17 +93,21 @@ function App() {
           setActiveClass(Number(data.prediction));
           console.log("Predicted and active class:", data.prediction, activeClass);
 
-      }else if (model == VIT_TINY && method == GRAD_CAM){
+      }else{
+          console.log("running");
           const data = await fetchImageExplanation(imageFile, model, method);
 
-          console.log(data);
+          setPrediction(
+            `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction}\n Confidence:${data.confidence}`
+          );
 
-          {data.heatmap && (
-            <img src={data.heatmap} alt="Grad-CAM Heatmap" style={{ maxWidth: '100%' }} />
-          )}
+          setImageGradCam(data.heatmap);
+
+          console.log(data);
           
       }
 
+      console.log("running outside");
 
       // If image is uploaded and model is vit-tiny, then it's image prediction
       if (model === VIT_TINY) {
@@ -265,13 +272,12 @@ function App() {
 
     {/* Image prediction */}
     {predictionType === "image" && (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <strong>Label:</strong> {prediction.label} <br />
-        <strong>Confidence:</strong> {(prediction.confidence * 100).toFixed(2)}%
+      <div>
+        <pre>{prediction}</pre>
+        <img src={imageGradCam} alt="Grad-CAM Heatmap" style={{ maxWidth: '100%' }} />
       </div>
     )}
 
-    {/* Only show this if predictionType === "text" */}
     {predictionType === "text" && (
       <div
         style={{
