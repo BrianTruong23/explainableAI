@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import TokenAttribution from './components/TokenAttribution';
-import { fetchTextExplanation } from './api/explainApi';
+import { fetchImageExplanation, fetchTextExplanation } from './api/explainApi';
 import { FaInfoCircle } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -68,28 +68,42 @@ function App() {
     }
 
     setLoading(true);
-    
+
     try {
-      const data = await fetchTextExplanation(text, model, method);
 
-      console.log("Response from backend:", data);
-      const formatted = data.probabilities
-        .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
-        .join('\n');
+      if (model == BERT && method == SHAP){
+          const data = await fetchTextExplanation(text, model, method);
 
-      if (model == "bert-base-uncased"){
-          setPredictionTextDisplay(data.class_attributions[Number(data.prediction)]["class_label"])
+          console.log("Response from backend:", data);
+          const formatted = data.probabilities
+            .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
+            .join('\n');
+
+          if (model == "bert-base-uncased"){
+              setPredictionTextDisplay(data.class_attributions[Number(data.prediction)]["class_label"])
+          }
+
+          setPrediction(
+            `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction} (${predictionTextDisplay})\n\nProbabilities:\n${formatted}`
+          );
+          setResult(data.class_attributions || {});
+          setActiveClass(Number(data.prediction));
+          console.log("Predicted and active class:", data.prediction, activeClass);
+
+      }else if (model == VIT_TINY && method == GRAD_CAM){
+          const data = await fetchImageExplanation(imageFile, model, method);
+
+          console.log(data);
+
+          {data.heatmap && (
+            <img src={data.heatmap} alt="Grad-CAM Heatmap" style={{ maxWidth: '100%' }} />
+          )}
+          
       }
 
-      setPrediction(
-        `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction} (${predictionTextDisplay})\n\nProbabilities:\n${formatted}`
-      );
-      setResult(data.class_attributions || {});
-      setActiveClass(Number(data.prediction));
-      console.log("Predicted and active class:", data.prediction, activeClass);
 
       // If image is uploaded and model is vit-tiny, then it's image prediction
-      if (model === "vit-tiny") {
+      if (model === VIT_TINY) {
         setPredictionType("image");
       } else {
         setPredictionType("text");
@@ -140,12 +154,9 @@ function App() {
 </div>
   <p className="explanation-subtext">
     Shine a light into AI’s black box. Neon AI helps you understand how models make decisions through clear, interactive, and human-friendly explanations.
+    Currently it serves two models and two explainable methods. 
   </p>
 
-
-    
-
-    
       {showInfo && (
         <div className="modal-overlay" onClick={toggleInfo}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
