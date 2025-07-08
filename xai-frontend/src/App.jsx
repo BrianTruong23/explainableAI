@@ -94,17 +94,12 @@ function App() {
           console.log("Predicted and active class:", data.prediction, activeClass);
 
       }else{
-          console.log("running");
           const data = await fetchImageExplanation(imageFile, model, method);
 
           setPrediction(
-            `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction}\n Confidence:${data.confidence}`
+            `Model: ${model}\nExplanation Method: ${method}\nPrediction: ${data.prediction}\nConfidence:${data.confidence}`
           );
-
           setImageGradCam(data.heatmap);
-
-          console.log(data);
-          
       }
 
       console.log("running outside");
