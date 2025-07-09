@@ -56,6 +56,10 @@ button:hover {
   height:60px;
 }
 
+.explain-model{
+  font-size: 17px;
+}
+
 .neon-title {
   font-size: 3.5rem;
   color: #E0FFFF; /* Very light cyan for the 'tube' itself */

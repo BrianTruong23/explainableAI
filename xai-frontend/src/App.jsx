@@ -202,31 +202,42 @@ function App() {
   />
 
 </div>
-  <p className="explanation-subtext">
-    Shine a light into AI’s black box. Neon AI helps you understand how models make decisions through clear, interactive, and human-friendly explanations.
-    Currently it serves two models and two explainable methods. 
-    Note on SHAP: The SHAP method may take longer to generate results due to its computational complexity.
-  </p>
+    <p className="explanation-subtext">
+      Shine a light into AI’s black box. Neon AI helps you understand how models make decisions through clear, interactive, and human-friendly explanations.
+      Currently, it supports two models and two explainability methods:
+      <div class ="explain-model">
+        <br />
+        • <strong>BERT (distilled-bert-base-uncased)</strong> — a text-based model that performs sentiment analysis. Using <strong>SHAP (SHapley Additive exPlanations)</strong>, the app highlights which words in a sentence contributed most to the predicted sentiment.
+        <br />
+        • <strong>ViT (google/vit-base-patch16-224)</strong> — an image classification model. <strong>Grad-CAM (Gradient-weighted Class Activation Mapping)</strong> is used to overlay heatmaps showing the regions of the image most influential to the prediction.
+      </div>
+   
+    </p>
 
-      {showInfo && (
-        <div className="modal-overlay" onClick={toggleInfo}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={toggleInfo}>×</button>
-            <h3>📘 About This Project</h3>
-            <p>
-              This project aims to demystify the decisions made by AI models. Currently, it serves two models.
-            </p>
-            <p>
-              One is a text model <strong>bert/bert-uncased</strong>, which predicts sentiment analysis.
-              An explainable method (<strong>SHAP</strong>) provides more insight into predictions.
-            </p>
-            <p>
-              The second model is <strong>google/vit-base-patch16-224</strong>, which predicts the class label of an image.
-              <strong>Grad-CAM</strong> is used to visualize which parts of the image influenced the prediction.
-            </p>
-          </div>
+
+    {showInfo && (
+      <div className="modal-overlay" onClick={toggleInfo}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <button className="close-button" onClick={toggleInfo}>×</button>
+          <h3>📘 About This Project</h3>
+          <p>
+            This project aims to demystify the decisions made by AI models by using interactive, interpretable visualizations powered by explainable AI techniques.
+          </p>
+          <p>
+            <strong>Text Model:</strong> <code>distilled-bert-base-uncased</code><br />
+            This model performs sentiment analysis on input text. To explain its predictions, the app uses <strong>SHAP</strong>, a game-theoretic approach that assigns importance scores to each word, indicating how much each word contributes to the overall prediction.
+          </p>
+          <p>
+            <strong>Image Model:</strong> <code>google/vit-base-patch16-224</code><br />
+            This model classifies input images into predefined categories. <strong>Grad-CAM</strong> is used to generate heatmaps that highlight the regions of the image that were most influential in the model's classification decision.
+          </p>
+          <p>
+            Future versions will support more model types (e.g., multimodal or multilingual) and additional explanation techniques to deepen interpretability across various AI tasks.
+          </p>
         </div>
-      )}
+      </div>
+    )}
+
 
 
 
