@@ -1,11 +1,27 @@
 // ping_api.js
-const fetch = require('node-fetch'); // Required for fetch in Node.js
+
+// Use a dynamic import for node-fetch, which returns a Promise
+// This allows you to use node-fetch (an ES Module) within a CommonJS script.
+let fetch;
+import('node-fetch').then(module => {
+    fetch = module.default;
+    // Once fetch is loaded, call the main function
+    runPingScript();
+}).catch(error => {
+    console.error("Failed to load node-fetch:", error.message);
+    process.exit(1); // Exit if we can't even load fetch
+});
+
 
 async function fetchTextExplanation(text, model = "bert-base-uncased", method = "SHAP") {
     const remoteURL = "https://thang22-xai-model-api.hf.space/predict-text";
     
     try {
         console.log(`Pinging API: ${remoteURL} with text: "${text}"`);
+        // Ensure fetch is available before using it
+        if (!fetch) {
+            throw new Error("node-fetch not loaded yet.");
+        }
         const res = await fetch(remoteURL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -22,15 +38,18 @@ async function fetchTextExplanation(text, model = "bert-base-uncased", method = 
         return data;
     } catch (error) {
         console.error("Error during API ping:", error.message);
-        // You might want to re-throw the error or handle it based on your needs
-        // For a simple ping, logging the error might be sufficient.
         throw error; 
     }
 }
 
-// Call the function with some dummy text to keep the API awake
-// The actual content of the text doesn't matter for just keeping it alive.
-fetchTextExplanation("Hello world, keep alive!")
-    .then(() => console.log("Ping script finished."))
-    .catch(err => console.error("Ping script failed:", err.message));
+// Wrap the main execution logic in a function to be called after fetch is loaded
+async function runPingScript() {
+    // Call the function with some dummy text to keep the API awake
+    fetchTextExplanation("Hello world, keep alive!")
+        .then(() => console.log("Ping script finished."))
+        .catch(err => {
+            console.error("Ping script failed:", err.message);
+            process.exit(1); // Exit with an error code if the ping fails
+        });
+}
 
