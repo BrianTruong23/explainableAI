@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import TokenAttribution from './components/TokenAttribution';
 import ImageSwitcher from './components/ImageSwitcher';
@@ -29,6 +29,10 @@ function App() {
   const [showInfo, setShowInfo] = useState(false);
   const [imageFileBase64, setImageFileBase64] = useState(null);
 
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [error, setError] = useState(null);
+  const [intervalId, setIntervalId] = useState(null);
+
   const VALID_COMBINATIONS = new Set([
     `${BERT}|${SHAP}`,
     `${VIT_TINY}|${GRAD_CAM}`
@@ -39,6 +43,29 @@ function App() {
     setShowInfo((prev) => !prev);
 
   };
+
+  const startTimer = useCallback(() => {
+    setElapsedTime(0); // Reset time
+    const id = setInterval(() => {
+      setElapsedTime(prevTime => prevTime + 1);
+    }, 1000); // Update every second
+    setIntervalId(id);
+  }, []);
+
+  // Function to stop the timer
+  const stopTimer = useCallback(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  }, [intervalId]);
+
+   // Effect to clean up the timer when the component unmounts
+  useEffect(() => {
+    return () => {
+      stopTimer();
+    };
+  }, [stopTimer]);
 
 
   const handleChange = (e) => {
@@ -103,6 +130,8 @@ function App() {
 
 
     setLoading(true);
+    setError(null);
+    startTimer(); // Start the timer when loading begins
 
     try {
 
@@ -148,6 +177,7 @@ function App() {
       setPrediction('Failed to get prediction.');
     } finally {
       setLoading(false);
+      stopTimer(); // Stop the timer when loading ends
     }
   };
 
@@ -272,7 +302,26 @@ function App() {
 
       <button onClick={handleSubmit}>Run Explainability</button>
 
-      {loading && <div className="loader"></div>}
+       {loading && (
+          <div className="flex flex-col items-center space-y-4">
+            <div className="loader"></div>
+            <p className="text-gray-700 text-lg font-medium">
+              Processing...
+            </p>
+            {elapsedTime > 0 && ( // Only show time after 1 second
+              <p className="text-gray-600 text-sm">
+                Elapsed time: {elapsedTime} seconds
+              </p>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg w-full max-w-md">
+            <p className="font-semibold">Error:</p>
+            <p>{error}</p>
+          </div>
+        )}
 
       <ToastContainer />
 
