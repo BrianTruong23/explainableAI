@@ -2,6 +2,8 @@
 
 A full-stack web application that allows users to input text (and images soon), receive a machine learning model prediction, and view explainability results that highlight which parts of the input influenced the prediction.
 
+You can access the website at this link: [https://explainable-ai-eta.vercel.app/](https://explainable-ai-eta.vercel.app/).
+
 ## ✨ Features
 
 - 🔤 Text classification using Hugging Face models (`bert-base-uncased`)
