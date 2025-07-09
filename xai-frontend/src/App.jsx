@@ -234,6 +234,13 @@ function App() {
           <p>
             Future versions will support more model types (e.g., multimodal or multilingual) and additional explanation techniques to deepen interpretability across various AI tasks.
           </p>
+          <p>
+            Created by&nbsp;
+            
+            <a href="https://truongthoithang.com" target="_blank" rel="noopener noreferrer">
+              Thang Truong (Brian).
+            </a>
+          </p>
         </div>
       </div>
     )}
@@ -442,6 +449,23 @@ function App() {
     )}
   </div>
 )}
+
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2025 Thang T. Truong. All rights reserved.</p>
+        <div class="footer-icons">
+          <a href="https://www.linkedin.com/in/truongthoithang/" target="_blank" aria-label="LinkedIn">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a href="https://github.com/BrianTruong23?tab=repositories" target="_blank" aria-label="GitHub">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="mailto:truongthoithang@utexas.edu" aria-label="Email">
+            <i class="fas fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
 
     </div>
   );

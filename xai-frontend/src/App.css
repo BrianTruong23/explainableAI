@@ -246,3 +246,52 @@ button:hover {
   display: block; /* Ensures it takes full width and centers */
   margin: 0 auto; /* Centers the image */
 }
+
+
+
+footer {
+  color: black; /* White text */
+  padding: 20px 0; /* Vertical padding */
+  text-align: center; /* Center align content */
+  font-family: 'Inter', sans-serif; /* Modern font */
+  width: 100%; /* Full width */
+  box-sizing: border-box; /* Include padding in width */
+}
+
+/* Footer Content Wrapper (optional, for max-width) */
+.footer-content {
+  max-width: 1200px; /* Max width for content */
+  margin: 0 auto; /* Center the content */
+  padding: 0 20px; /* Horizontal padding for smaller screens */
+}
+
+/* Paragraphs within footer */
+footer p {
+  margin: 10px 0; /* Spacing for paragraphs */
+  font-size: 0.9em; /* Slightly smaller font size */
+  line-height: 1.5; /* Good line height for readability */
+}
+
+/* Links within footer */
+footer a {
+  color: black; /* Accent color for links */
+  text-decoration: none; /* No underline by default */
+  transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+footer a:hover {
+  color: #0097a7; /* Darker accent on hover */
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Social media icons or lists (if applicable) */
+.footer-icons { /* This class matches your HTML */
+  margin-top: 15px;
+}
+
+.footer-icons a { /* This targets the anchor tags within .footer-icons */
+  display: inline-block;
+  margin: 0 10px;
+  font-size: 1.2em; /* Larger icons */
+}
+
