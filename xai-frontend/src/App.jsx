@@ -205,6 +205,7 @@ function App() {
   <p className="explanation-subtext">
     Shine a light into AI’s black box. Neon AI helps you understand how models make decisions through clear, interactive, and human-friendly explanations.
     Currently it serves two models and two explainable methods. 
+    Note on SHAP: The SHAP method may take longer to generate results due to its computational complexity.
   </p>
 
       {showInfo && (
