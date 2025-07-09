@@ -1,0 +1,37 @@
+
+name: Ping Hugging Face API
+
+on:
+  schedule:
+    # Runs every 3 minutes
+    # For cron syntax:
+    # ┌───────────── minute (0 - 59)
+    # │ ┌───────────── hour (0 - 23)
+    # │ │ ┌───────────── day of month (1 - 31)
+    # │ │ │ ┌───────────── month (1 - 12)
+    # │ │ │ │ ┌───────────── day of week (0 - 6) (Sunday to Saturday)
+    # │ │ │ │ │
+    # │ │ │ │ │
+    # * * * * *
+    - cron: '*/3 * * * *'
+  workflow_dispatch:
+    # Allows you to manually trigger the workflow from the GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18' # Use a stable Node.js version that supports 'node-fetch'
+
+    - name: Install dependencies
+      run: npm install node-fetch
+
+    - name: Run ping script
+      run: node ping_api.js
