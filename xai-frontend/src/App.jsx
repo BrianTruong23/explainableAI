@@ -76,7 +76,6 @@ function App() {
       reader.onloadend = () => {
         // reader.result will contain the Base64 string (data:image/jpeg;base64,...)
         setImageFileBase64(reader.result);
-        console.log("Base64 string obtained and set:", reader.result.substring(0, 50) + '...'); // Log first 50 chars
       };
 
       // Read the file as a Data URL (Base64 string)
@@ -102,7 +101,6 @@ function App() {
       return;
     }
 
-    console.log("running outside 1");
 
     setLoading(true);
 
@@ -111,7 +109,6 @@ function App() {
       if (model == BERT && method == SHAP){
           const data = await fetchTextExplanation(text, model, method);
 
-          console.log("Response from backend:", data);
           const formatted = data.probabilities
             .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
             .join('\n');
@@ -136,7 +133,6 @@ function App() {
           setImageGradCam(data.heatmap);
       }
 
-      console.log("running outside");
 
       // If image is uploaded and model is vit-tiny, then it's image prediction
       if (model === VIT_TINY) {
