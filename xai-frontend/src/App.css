@@ -182,3 +182,63 @@ button:hover {
   background-color: white;
 }
 
+
+
+/* Container for the entire component */
+.image-switcher-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Section for "View Type of Image" */
+.view-type-section {
+  margin-bottom: 20px;
+}
+
+/* Toggle switch container */
+.toggle-switch-container {
+  position: relative;
+  display: flex;
+  border-radius: 100px;
+  background-color: #0036FF80;
+  height: 32px;
+  cursor: pointer;
+  margin-top: 10px; /* Added some margin for spacing */
+}
+
+/* Sliding background for the toggle */
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #0036FF;
+  border-radius: 100px;
+  transition: transform 0.3s ease;
+}
+
+/* Styles for each toggle option (Grad Image, Original Image) */
+.toggle-option {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1; /* Ensure text is above the slider */
+  font-weight: 500;
+  transition: color 0.3s ease;
+  color: #ffffffb3; /* Default inactive color */
+}
+
+/* Active toggle option text color */
+.toggle-option.active {
+  color: #fff;
+}
+
+/* Styles for the image itself */
+.displayed-image {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Ensures it takes full width and centers */
+  margin: 0 auto; /* Centers the image */
+}

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import TokenAttribution from './components/TokenAttribution';
+import ImageSwitcher from './components/ImageSwitcher';
 import { fetchImageExplanation, fetchTextExplanation } from './api/explainApi';
 import { FaInfoCircle } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,8 +9,14 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 function App() {
+
+  const SHAP = "SHAP";
+  const VIT_TINY = "vit-tiny";
+  const BERT = "distilbert-base-uncased";
+  const GRAD_CAM = "GradCAM";
+  
   const [text, setText] = useState('');
-  const [model, setModel] = useState('bert-base-uncased');
+  const [model, setModel] = useState(BERT);
   const [method, setMethod] = useState('SHAP');
   const [prediction, setPrediction] = useState(null);
   const [imageGradCam, setImageGradCam] = useState(null);
@@ -20,10 +27,8 @@ function App() {
   const [predictionType, setPredictionType] = useState("text"); // or "image"
   const [predictionTextDisplay, setPredictionTextDisplay] = useState('Positive')
   const [showInfo, setShowInfo] = useState(false);
-  const SHAP = "SHAP";
-  const VIT_TINY = "vit-tiny";
-  const BERT = "bert-base-uncased";
-  const GRAD_CAM = "GradCAM";
+  const [imageFileBase64, setImageFileBase64] = useState(null);
+
   const VALID_COMBINATIONS = new Set([
     `${BERT}|${SHAP}`,
     `${VIT_TINY}|${GRAD_CAM}`
@@ -34,6 +39,7 @@ function App() {
     setShowInfo((prev) => !prev);
 
   };
+
 
   const handleChange = (e) => {
     const selectedValue = e.target.value;
@@ -52,9 +58,37 @@ function App() {
   const sanityCheckForModelAndMethod = (model, method) => {
     return VALID_COMBINATIONS.has(`${model}|${method}`);
   };
-  
-  
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+    } else {
+      alert("Please upload a valid image file.");
+    }
+  };
+
+  useEffect(() => {
+    if (imageFile) {
+      const reader = new FileReader();
+
+      // Define what happens when the reader finishes loading the file
+      reader.onloadend = () => {
+        // reader.result will contain the Base64 string (data:image/jpeg;base64,...)
+        setImageFileBase64(reader.result);
+        console.log("Base64 string obtained and set:", reader.result.substring(0, 50) + '...'); // Log first 50 chars
+      };
+
+      // Read the file as a Data URL (Base64 string)
+      reader.readAsDataURL(imageFile);
+    } else {
+      // If imageFile is null (no file selected or cleared), also clear the base64 state
+      setImageFileBase64(null);
+    }
+
+  }, [imageFile]); 
+
+    
   const handleSubmit = async () => {
 
     if (!sanityCheckForModelAndMethod(model, method)){
@@ -82,7 +116,7 @@ function App() {
             .map((prob, i) => `Class ${i}: ${(prob * 100).toFixed(2)}%`)
             .join('\n');
 
-          if (model == "bert-base-uncased"){
+          if (model == BERT){
               setPredictionTextDisplay(data.class_attributions[Number(data.prediction)]["class_label"])
           }
 
@@ -121,14 +155,7 @@ function App() {
     }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setImageFile(file);
-    } else {
-      alert("Please upload a valid image file.");
-    }
-  };
+
 
   return (
     <div 
@@ -181,10 +208,10 @@ function App() {
         placeholder="Enter text..."
         value={text}
         onChange={e => setText(e.target.value)}
-        disabled = {model == "vit-tiny"}
+        disabled = {model == VIT_TINY}
         style={{
-          opacity: model === "vit-tiny" ? 0.5 : 1,
-          cursor: model === "vit-tiny" ? "not-allowed" : "pointer"
+          opacity: model === VIT_TINY ? 0.5 : 1,
+          cursor: model === VIT_TINY ? "not-allowed" : "pointer"
         }}
       />
 
@@ -195,10 +222,10 @@ function App() {
             type="file"
             accept="image/*"
             onChange={handleImageUpload}
-            disabled={model === "bert-base-uncased"}
+            disabled={model === "BERT"}
             style={{
-              opacity: model === "bert-base-uncased" ? 0.5 : 1,
-              cursor: model === "bert-base-uncased" ? "not-allowed" : "pointer"
+              opacity: model === BERT ? 0.5 : 1,
+              cursor: model === BERT ? "not-allowed" : "pointer"
             }}
           />
 
@@ -208,8 +235,8 @@ function App() {
       <label>
         Model:
         <select onChange={(e) => setModel(e.target.value)} value={model}>
-          <option value="bert-base-uncased">bert-base-uncased</option>
-          <option value="vit-tiny">vit-tiny</option>
+          <option value={BERT}>distilled-bert-base-uncased</option>
+          <option value={VIT_TINY}>vit-tiny</option>
         </select>
       </label>
 
@@ -221,14 +248,14 @@ function App() {
         onChange={handleChange}
         value={method}
         style={{
-          opacity: model === "bert-base-uncased" && method === "GradCAM" ? 0.5 : 1,
-          cursor: model === "bert-base-uncased" && method === "GradCAM" ? "not-allowed" : "pointer",
+          opacity: model === BERT && method === GRAD_CAM ? 0.5 : 1,
+          cursor: model === BERT && method === GRAD_CAM ? "not-allowed" : "pointer",
         }}
       >
         <option
           value="SHAP"
           style={{
-            color: model === "vit-tiny" ? "#999" : "inherit",
+            color: model === VIT_TINY ? "#999" : "inherit",
           }}
         >
           SHAP
@@ -236,7 +263,7 @@ function App() {
         <option
           value="GradCAM"
           style={{
-            color: model === "bert-base-uncased" ? "#999" : "inherit",
+            color: model === BERT ? "#999" : "inherit",
           }}
         >
           GradCAM
@@ -264,8 +291,12 @@ function App() {
     {predictionType === "image" && (
       <div>
         <pre>{prediction}</pre>
-        <img src={imageGradCam} alt="Grad-CAM Heatmap" style={{ maxWidth: '100%' }} />
+        <ImageSwitcher
+          imageGradCam={imageGradCam}
+          originalImageSrc={imageFileBase64}
+        />
       </div>
+
     )}
 
     {predictionType === "text" && (
