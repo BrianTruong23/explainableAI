@@ -14,6 +14,10 @@ on:
     # │ │ │ │ │
     # * * * * *
     - cron: '*/3 * * * *'
+  push:
+      branches:
+        - main # This line triggers the workflow on pushes to the 'main' branch
+
   workflow_dispatch:
     # Allows you to manually trigger the workflow from the GitHub Actions tab
 
