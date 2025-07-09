@@ -2,7 +2,7 @@
 
 A full-stack web application that allows users to input text (and images soon), receive a machine learning model prediction, and view explainability results that highlight which parts of the input influenced the prediction.
 
-You can access the website at this link: [NeonAI](https://neonlightai.vercel.app/)).
+You can access the website at this link: [NeonLightAI](https://neonlightai.vercel.app/).
 
 ## ✨ Features
 
