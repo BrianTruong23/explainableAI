@@ -194,6 +194,11 @@ button:hover {
   font-family: Arial, sans-serif;
 }
 
+.image-display-container img{
+  width: 80%;
+  height: 80%;
+}
+
 /* Section for "View Type of Image" */
 .view-type-section {
   margin-bottom: 20px;
