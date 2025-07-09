@@ -457,7 +457,7 @@ function App() {
           <a href="https://www.linkedin.com/in/truongthoithang/" target="_blank" aria-label="LinkedIn">
             <i class="fab fa-linkedin"></i>
           </a>
-          <a href="https://github.com/BrianTruong23?tab=repositories" target="_blank" aria-label="GitHub">
+          <a href="https://github.com/BrianTruong23" target="_blank" aria-label="GitHub">
             <i class="fab fa-github"></i>
           </a>
           <a href="mailto:truongthoithang@utexas.edu" aria-label="Email">
