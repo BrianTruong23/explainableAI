@@ -1,0 +1,216 @@
+.hero {
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6,182,212,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 740px;
+  margin-bottom: 64px;
+}
+
+.hero-title {
+  font-size: 3.75rem;
+  margin: 20px 0 24px;
+  line-height: 1.1;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  max-width: 580px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---- Mockup ---- */
+.hero-mockup {
+  width: 100%;
+  max-width: 940px;
+}
+
+.mockup-frame {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  transform: perspective(1200px) rotateX(4deg);
+  transition: transform 0.5s ease;
+}
+.mockup-frame:hover {
+  transform: perspective(1200px) rotateX(1deg);
+}
+
+.mockup-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--border-color);
+}
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.dot-red { background: #EF4444; }
+.dot-yellow { background: #FBBF24; }
+.dot-green { background: #10B981; }
+.mockup-title-bar {
+  flex: 1;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 36px;
+}
+
+.mockup-body {
+  display: flex;
+  min-height: 320px;
+}
+
+.mockup-left {
+  width: 45%;
+  padding: 32px 28px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.mockup-right {
+  flex: 1;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mockup-field { display: flex; flex-direction: column; gap: 8px; }
+.mockup-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.mockup-input {
+  background: var(--surface-soft);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+.mockup-select {
+  background: var(--surface-soft);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+.mockup-run-btn {
+  background: var(--accent-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+.mockup-result-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.mockup-result-badge.positive {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent-success);
+}
+
+.mockup-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tok {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.tok-strong { background: rgba(0,0,255,0.25); color: #1e3a5f; }
+.tok-medium { background: rgba(0,0,255,0.15); color: #1e3a5f; }
+.tok-light { background: rgba(0,0,255,0.08); color: #1e3a5f; }
+.tok-neutral { background: var(--surface-soft); color: var(--text-muted); }
+
+.mockup-caption {
+  font-size: 0.8rem;
+  margin-top: auto;
+}
+
+@media (max-width: 768px) {
+  .hero-title { font-size: 2.5rem; }
+  .mockup-body { flex-direction: column; }
+  .mockup-left {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .mockup-frame { transform: none; }
+  .mockup-frame:hover { transform: none; }
+}

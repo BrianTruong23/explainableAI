@@ -1,0 +1,71 @@
+.use-cases {
+  background: var(--surface-soft);
+}
+
+.personas {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.persona {
+  flex: 1;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  transition: background 0.2s ease;
+}
+.persona:hover {
+  background: var(--surface-soft);
+}
+
+.persona-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.persona-info h4 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+.persona-info p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.persona-divider {
+  width: 1px;
+  background: var(--border-color);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .personas {
+    flex-direction: column;
+  }
+  .persona {
+    flex-direction: row;
+    text-align: left;
+    padding: 24px;
+  }
+  .persona-divider {
+    width: auto;
+    height: 1px;
+  }
+}
